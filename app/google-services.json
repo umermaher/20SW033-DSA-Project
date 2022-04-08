@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "970734459825",
+    "project_id": "dsa-project-9e478",
+    "storage_bucket": "dsa-project-9e478.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970734459825:android:f1bdcdea07b16aefb17b90",
+        "android_client_info": {
+          "package_name": "com.example.dsaproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "970734459825-hcm527et5bnlb1jbo69695fmil38a7ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv41wuJvmDv7D46cH14CJG7vE3POQhA_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "970734459825-hcm527et5bnlb1jbo69695fmil38a7ph.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
