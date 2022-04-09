@@ -48,4 +48,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 //Image picker from gallery and camera
     implementation 'com.github.dhaval2404:imagepicker:2.1'
+    //Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }

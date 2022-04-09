@@ -3,14 +3,19 @@ package com.example.dsaproject
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.view.accessibility.AccessibilityEventCompat
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.database.DatabaseReference
@@ -18,24 +23,30 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.FirebaseDatabase.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.StorageTask
+import com.google.firebase.storage.UploadTask
 
 class MainActivity : AppCompatActivity() {
     lateinit var mImageUri:Uri
     private lateinit var mImage:ImageView
     lateinit var storageReference: StorageReference
-    lateinit var databaseReferance: DatabaseReference
+    lateinit var databaseReference: DatabaseReference
+    lateinit var progressBar: ProgressBar
+    lateinit var fileNameText:TextInputLayout
+    var uploadTask:UploadTask?=null
+
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         val chooseFileBtn= findViewById<Button>(R.id.choose_file)
         val uploadBtn=findViewById<Button>(R.id.upload_image)
-        val fileNameText=findViewById<TextInputLayout>(R.id.file_name_text)
-        mImage=findViewById<ImageView>(R.id.image_view)
-
+        fileNameText=findViewById(R.id.file_name_text)
+        mImage=findViewById(R.id.image_view)
+        progressBar=findViewById(R.id.upload_progress_bar)
 
         storageReference=FirebaseStorage.getInstance().getReference("uploads")
-        databaseReferance= FirebaseDatabase.getInstance().getReference("uploads")
+        databaseReference = FirebaseDatabase.getInstance().getReference("uploads")
 
         chooseFileBtn.setOnClickListener{
             ImagePicker.with(this)
@@ -45,31 +56,59 @@ class MainActivity : AppCompatActivity() {
                 .start()
         }
         uploadBtn.setOnClickListener {
-            uploadFile()
+            if(mImage.drawable==null){
+                Toast.makeText(this,"Select image!",Toast.LENGTH_LONG).show()
+            } else if(fileNameText.editText?.text.toString().isEmpty()){
+                Toast.makeText(this,"Enter file name!",Toast.LENGTH_LONG).show()
+            } else if(uploadTask!=null && uploadTask!!.isInProgress){
+                Toast.makeText(this,"Upload in progress!",Toast.LENGTH_LONG).show()
+            } else{
+                uploadFile()
+            }
         }
     }
 
     private fun getFileExtension(uri:Uri): String? {
-        var cr:ContentResolver=contentResolver
-        var mime:MimeTypeMap= MimeTypeMap.getSingleton()
-        return mime.getExtensionFromMimeType(cr.getType(uri))
+        val cr:ContentResolver=this.contentResolver
+        val mime:MimeTypeMap= MimeTypeMap.getSingleton()
+        return mime.getExtensionFromMimeType(cr.getType(uri).toString())
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun uploadFile() {
         if(mImageUri!=null){
             var fileRefence: StorageReference=storageReference.child(
-                System.currentTimeMillis().toString()+"."+getFileExtension(mImageUri)
+                "image_"+System.currentTimeMillis().toString()
             )
-            fileRefence.putFile(mImageUri)
-                .addOnSuccessListener {
+//            +"."+getFileExtension(mImageUri)
+//            Toast.makeText(this,"image_"+System.currentTimeMillis().toString()+"."+getFileExtension(mImageUri),Toast.LENGTH_LONG).show()
 
+            uploadTask= fileRefence.putFile(mImageUri)
+                .addOnSuccessListener {
+                    fileRefence.downloadUrl.addOnSuccessListener {
+                        val task=it
+                        val handler:Handler= Handler()
+                        handler.postDelayed(Runnable {
+                            progressBar.setProgress(0,true)
+                        },5000)
+                        Toast.makeText(this,"Upload Successful!",Toast.LENGTH_LONG).show()
+                        val model=Model(
+                            fileNameText.editText?.text.toString(), task.toString()
+                        )
+                        val uploadId:String?=databaseReference.push().key
+                        if (uploadId != null) {
+                            databaseReference.child(uploadId).setValue(model)
+                        }
+                    }
                 }
                 .addOnFailureListener {
-
+                    Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
                 }
                 .addOnProgressListener {
+                    var progress:Double=(100.0*it.bytesTransferred/it.totalByteCount)
+                    progressBar.setProgress(progress.toInt(),true)
+                } as UploadTask
 
-                }
         }else{
             Toast.makeText(this,"No file Selected!",Toast.LENGTH_LONG).show()
         }
@@ -80,4 +119,6 @@ class MainActivity : AppCompatActivity() {
         mImageUri= data?.data!!
         mImage.setImageURI(mImageUri)
     }
+
+    fun showUploads(view: android.view.View) = startActivity(Intent(this,UploadImagesActivity::class.java))
 }
