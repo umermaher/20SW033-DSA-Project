@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mImage:ImageView
     lateinit var storageReference: StorageReference
     lateinit var databaseReference: DatabaseReference
+    lateinit var linearProgressBar: ProgressBar
     lateinit var progressBar: ProgressBar
     lateinit var fileNameText:TextInputLayout
     var uploadTask:UploadTask?=null
@@ -43,7 +44,8 @@ class MainActivity : AppCompatActivity() {
         val uploadBtn=findViewById<Button>(R.id.upload_image)
         fileNameText=findViewById(R.id.file_name_text)
         mImage=findViewById(R.id.image_view)
-        progressBar=findViewById(R.id.upload_progress_bar)
+        linearProgressBar=findViewById(R.id.upload_progress_bar)
+        progressBar=findViewById(R.id.progressBar)
 
         storageReference=FirebaseStorage.getInstance().getReference("uploads")
         databaseReference = FirebaseDatabase.getInstance().getReference("uploads")
@@ -83,14 +85,16 @@ class MainActivity : AppCompatActivity() {
 //            +"."+getFileExtension(mImageUri)
 //            Toast.makeText(this,"image_"+System.currentTimeMillis().toString()+"."+getFileExtension(mImageUri),Toast.LENGTH_LONG).show()
 
+            progressBar.visibility=View.VISIBLE
             uploadTask= fileRefence.putFile(mImageUri)
                 .addOnSuccessListener {
                     fileRefence.downloadUrl.addOnSuccessListener {
+                        progressBar.visibility=View.GONE
                         val task=it
                         val handler:Handler= Handler()
                         handler.postDelayed(Runnable {
-                            progressBar.setProgress(0,true)
-                        },5000)
+                            linearProgressBar.setProgress(0,true)
+                        },2000)
                         Toast.makeText(this,"Upload Successful!",Toast.LENGTH_LONG).show()
                         val model=Model(
                             fileNameText.editText?.text.toString(), task.toString()
@@ -102,11 +106,12 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener {
+                    progressBar.visibility=View.GONE
                     Toast.makeText(this,it.message,Toast.LENGTH_LONG).show()
                 }
                 .addOnProgressListener {
                     var progress:Double=(100.0*it.bytesTransferred/it.totalByteCount)
-                    progressBar.setProgress(progress.toInt(),true)
+                    linearProgressBar.setProgress(progress.toInt(),true)
                 } as UploadTask
 
         }else{

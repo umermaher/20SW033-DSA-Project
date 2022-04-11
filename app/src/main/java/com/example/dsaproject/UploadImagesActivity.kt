@@ -10,6 +10,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.util.*
+import kotlin.collections.ArrayList
 
 class UploadImagesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,21 +20,28 @@ class UploadImagesActivity : AppCompatActivity() {
 
         val recyclerView=findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager=LinearLayoutManager(this)
+        val linearLayoutManager=LinearLayoutManager(this)
+        linearLayoutManager.reverseLayout
+        recyclerView.layoutManager=linearLayoutManager
 
-        val uploadLists=ArrayList<Model>()
-        var adapter:ImageAdapter
+//        val uploadLists=ArrayList<Model>()
+//        var uploadLists=LinkedList<Model>()
 
         val databaseReference=FirebaseDatabase.getInstance().getReference("uploads")
         databaseReference.addValueEventListener(object:ValueEventListener{
+
             override fun onDataChange(snapshot: DataSnapshot) {
+                var uploadLists=Node()
                 for(postSnapShot in snapshot.children){
                     val name= postSnapShot.child("name").value as String?
                     val uri=postSnapShot.child("uri").value as String?
-                    uploadLists.add(Model(name,uri))
+//                    uploadLists.add(Model(name,uri))
+//                    linkedStack.push(Model(name,uri))
+                    uploadLists=uploadLists.addFirst(Model(name,uri))
                 }
-                adapter=ImageAdapter(this@UploadImagesActivity,uploadLists)
+                val adapter=ImageAdapter(uploadLists)
                 recyclerView.adapter=adapter
+
             }
 
             override fun onCancelled(error: DatabaseError) {
