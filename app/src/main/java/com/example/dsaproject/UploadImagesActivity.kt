@@ -13,7 +13,7 @@ import com.google.firebase.database.ValueEventListener
 import java.util.*
 import kotlin.collections.ArrayList
 
-class UploadImagesActivity : AppCompatActivity() {
+class UploadImagesActivity : AppCompatActivity() ,ImageAdapter.OnItemClickListener{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_images)
@@ -23,7 +23,6 @@ class UploadImagesActivity : AppCompatActivity() {
         val linearLayoutManager=LinearLayoutManager(this)
         linearLayoutManager.reverseLayout
         recyclerView.layoutManager=linearLayoutManager
-
 //        val uploadLists=ArrayList<Model>()
 //        var uploadLists=LinkedList<Model>()
 
@@ -39,14 +38,24 @@ class UploadImagesActivity : AppCompatActivity() {
 //                    linkedStack.push(Model(name,uri))
                     uploadLists=uploadLists.addFirst(Model(name,uri))
                 }
-                val adapter=ImageAdapter(uploadLists)
+                val adapter=ImageAdapter(this@UploadImagesActivity,uploadLists)
                 recyclerView.adapter=adapter
+                adapter.setOnItemClickListener(this@UploadImagesActivity)
 
+                adapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(this@UploadImagesActivity,error.message,Toast.LENGTH_LONG).show()
             }
         })
+    }
+
+    override fun onItemClick(position: Int) {
+        Toast.makeText(this,"$position",Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onDeleteClick(position: Int) {
+
     }
 }

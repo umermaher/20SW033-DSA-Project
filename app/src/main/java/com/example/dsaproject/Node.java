@@ -35,6 +35,7 @@ public class Node {
         }
         return s;
     }
+
     public Model get(int i){
         Node p=this;
         int index=0;

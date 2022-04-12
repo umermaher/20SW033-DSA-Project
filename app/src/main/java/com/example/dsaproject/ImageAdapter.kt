@@ -3,9 +3,8 @@ package com.example.dsaproject
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.View.OnClickListener
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -14,8 +13,9 @@ import com.squareup.picasso.Picasso
 import org.w3c.dom.Text
 import java.util.*
 
-class ImageAdapter(private var items:Node) : Adapter<ImageViewHolder>() {
-    private lateinit var listener: OnItemClickListener
+class ImageAdapter(
+    private var listener: OnItemClickListener,private var items:Node) : Adapter<ImageAdapter.ImageViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view=LayoutInflater.from(parent.context).inflate(R.layout.image_item,parent,false)
         return ImageViewHolder(view)
@@ -33,18 +33,55 @@ class ImageAdapter(private var items:Node) : Adapter<ImageViewHolder>() {
 
     fun setOnItemClickListener(listener: OnItemClickListener){
         this.listener=listener
-
     }
-}
-interface OnItemClickListener{
-    fun onDeleteClick(position: Int);
-}
-class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var textView: TextView = itemView.findViewById(R.id.image_name)
-    var imageView:ImageView = itemView.findViewById(R.id.image_view_upload)
-    init {
-        itemView.setOnClickListener{
 
+    interface OnItemClickListener{
+        fun onItemClick(position: Int)
+        fun onDeleteClick(position: Int)
+    }
+
+    inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        View.OnClickListener, View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
+        var textView: TextView = itemView.findViewById(R.id.image_name)
+        var imageView:ImageView = itemView.findViewById(R.id.image_view_upload)
+        init {
+            itemView.setOnClickListener(this)
+            itemView.setOnCreateContextMenuListener(this)
+        }
+
+        override fun onClick(p0: View?) {
+            if(listener!=null){
+                val position=adapterPosition
+                if(position!=RecyclerView.NO_POSITION) {
+                    listener.onItemClick(position)
+                }
+            }
+        }
+
+        override fun onCreateContextMenu(
+            menu: ContextMenu?,
+            v: View?,
+            contextMenu: ContextMenu.ContextMenuInfo?
+        ) {
+            menu?.setHeaderTitle("Select Action")
+            val item:MenuItem?=menu?.add(Menu.NONE,1,1,"Delete")
+
+            item?.setOnMenuItemClickListener(this)
+        }
+
+        override fun onMenuItemClick(p0: MenuItem?): Boolean {
+            if(listener!=null){
+                val position=adapterPosition
+                if(position!=RecyclerView.NO_POSITION){
+                    when(p0?.itemId){
+                        1->{
+                            listener.onDeleteClick(position)
+                            return true
+                        }
+                    }
+                }
+            }
+            return false
         }
     }
 }
