@@ -27,7 +27,7 @@ import com.google.firebase.storage.StorageTask
 import com.google.firebase.storage.UploadTask
 
 class MainActivity : AppCompatActivity() {
-    lateinit var mImageUri:Uri
+     private lateinit var mImageUri:Uri
     private lateinit var mImage:ImageView
     lateinit var storageReference: StorageReference
     lateinit var databaseReference: DatabaseReference
@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
                 .maxResultSize(1080, 1080)	//Final image resolution will be less than 1080 x 1080(Optional)
                 .start()
         }
+
         uploadBtn.setOnClickListener {
             if(mImage.drawable==null){
                 Toast.makeText(this,"Select image!",Toast.LENGTH_LONG).show()
@@ -79,29 +80,35 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     private fun uploadFile() {
         if(mImageUri!=null){
-            var fileRefence: StorageReference=storageReference.child(
+            var fileReference: StorageReference=storageReference.child(
                 "image_"+System.currentTimeMillis().toString()
             )
 //            +"."+getFileExtension(mImageUri)
 //            Toast.makeText(this,"image_"+System.currentTimeMillis().toString()+"."+getFileExtension(mImageUri),Toast.LENGTH_LONG).show()
 
             progressBar.visibility=View.VISIBLE
-            uploadTask= fileRefence.putFile(mImageUri)
+            uploadTask= fileReference.putFile(mImageUri)
                 .addOnSuccessListener {
-                    fileRefence.downloadUrl.addOnSuccessListener {
+                    fileReference.downloadUrl.addOnSuccessListener {
+
                         progressBar.visibility=View.GONE
                         val task=it
-                        val handler:Handler= Handler()
-                        handler.postDelayed(Runnable {
+
+                        Handler().postDelayed(Runnable {
                             linearProgressBar.setProgress(0,true)
                         },2000)
+
                         Toast.makeText(this,"Upload Successful!",Toast.LENGTH_LONG).show()
+
                         val model=Model(
                             fileNameText.editText?.text.toString(), task.toString()
                         )
                         val uploadId:String?=databaseReference.push().key
+
                         if (uploadId != null) {
-                            databaseReference.child(uploadId).setValue(model)
+                            databaseReference.child(uploadId).setValue(model).addOnSuccessListener {
+                                startActivity(Intent(this,UploadImagesActivity::class.java))
+                            }
                         }
                     }
                 }
@@ -121,8 +128,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        mImageUri= data?.data!!
-        mImage.setImageURI(mImageUri)
+        try {
+            mImageUri = data?.data!!
+            mImage.setImageURI(mImageUri)
+        }catch (exception:Exception){
+            Toast.makeText(this,"Please select image",Toast.LENGTH_LONG).show()
+        }
     }
 
     fun showUploads(view: android.view.View) = startActivity(Intent(this,UploadImagesActivity::class.java))

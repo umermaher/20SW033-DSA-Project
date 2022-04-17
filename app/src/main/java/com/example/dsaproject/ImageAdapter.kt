@@ -1,20 +1,22 @@
 package com.example.dsaproject
 
-import android.content.Context
-import android.os.Parcel
-import android.os.Parcelable
 import android.view.*
-import android.view.View.OnClickListener
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.squareup.picasso.Picasso
-import org.w3c.dom.Text
+import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 
-class ImageAdapter(
-    private var listener: OnItemClickListener,private var items:Node) : Adapter<ImageAdapter.ImageViewHolder>() {
+class ImageAdapter(private var listener: OnItemClickListener,private var items:LinkedList=LinkedList()) :
+    Adapter<ImageAdapter.ImageViewHolder>() {
+
+    private  var fullItems:LinkedList= LinkedList()
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view=LayoutInflater.from(parent.context).inflate(R.layout.image_item,parent,false)
@@ -29,7 +31,16 @@ class ImageAdapter(
         }
     }
 
-    override fun getItemCount(): Int = items.size()
+    override fun getItemCount(): Int = items.size
+
+    fun updateNews(updatedList:LinkedList){
+        items.clear()
+        items.addAll(updatedList)
+        fullItems.clear()
+        fullItems.addAll(updatedList)
+        //reloading the recycler view
+        notifyDataSetChanged()
+    }
 
     fun setOnItemClickListener(listener: OnItemClickListener){
         this.listener=listener
@@ -65,7 +76,6 @@ class ImageAdapter(
         ) {
             menu?.setHeaderTitle("Select Action")
             val item:MenuItem?=menu?.add(Menu.NONE,1,1,"Delete")
-
             item?.setOnMenuItemClickListener(this)
         }
 
@@ -84,4 +94,31 @@ class ImageAdapter(
             return false
         }
     }
+
+//    override fun getFilter(): Filter = filter
+//
+//    private val filter=object:Filter(){
+//        override fun performFiltering(p0: CharSequence?): FilterResults {
+//            var filteredList=LinkedList()
+//            if(p0==null || p0.isEmpty()){
+//                filteredList.addAll(fullItems)
+//            }else{
+//                val filterPattern= p0.toString().lowercase(Locale.getDefault()).trim()
+//                for(i in 0 until fullItems.size){
+//                    if(fullItems.get(i).name?.contains(filterPattern) == true){
+//                        filteredList.addFirst(fullItems.get(i))
+//                    }
+//                }
+//            }
+//            val result=FilterResults()
+//            result.values =filteredList
+//            return result
+//        }
+//
+//        override fun publishResults(p0: CharSequence?, p1: FilterResults?) {
+//            items.clear()
+//            items.addAll(p1?.values as LinkedList)
+//            notifyDataSetChanged()
+//        }
+//    }
 }

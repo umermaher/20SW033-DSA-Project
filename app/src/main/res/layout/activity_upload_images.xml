@@ -1,13 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".UploadImagesActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recycler_view"/>
-</RelativeLayout>
+        android:layout_height="35dp"
+        android:background="#E8E6E6"
+        android:id="@+id/noInternetLayout">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="No network connection"
+            android:gravity="center"
+            android:textStyle="bold"/>
+    </RelativeLayout>
+    <androidx.appcompat.widget.SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:queryHint="Search"
+        android:id="@+id/searchView"
+        android:layout_alignParentTop="true"
+        app:iconifiedByDefault="false"
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="30dp"
+        android:focusable="false"
+        />
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/recycler_view"
+            android:layout_marginTop="10dp"/>
+
+</LinearLayout>
