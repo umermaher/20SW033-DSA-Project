@@ -30,10 +30,20 @@
         android:paddingHorizontal="30dp"
         android:focusable="false"
         />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/recycler_view"
             android:layout_marginTop="10dp"/>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/deleteProgressBar"
+            android:visibility="gone"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
 
 </LinearLayout>

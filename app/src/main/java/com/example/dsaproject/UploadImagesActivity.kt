@@ -3,6 +3,7 @@ package com.example.dsaproject
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,7 @@ class UploadImagesActivity : AppCompatActivity() ,ImageAdapter.OnItemClickListen
     private lateinit var databaseReference: DatabaseReference
     private lateinit var valueEventListener: ValueEventListener
     private lateinit var connectivityLiveData: ConnectivityLiveData
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +30,7 @@ class UploadImagesActivity : AppCompatActivity() ,ImageAdapter.OnItemClickListen
         supportActionBar?.hide()
         val noInternetLayout=findViewById<RelativeLayout>(R.id.noInternetLayout)
         mRecyclerView=findViewById(R.id.recycler_view)
+        progressBar=findViewById(R.id.deleteProgressBar)
         val searchView =findViewById<SearchView>(R.id.searchView)
 
         connectivityLiveData= ConnectivityLiveData(this)
@@ -100,19 +103,27 @@ class UploadImagesActivity : AppCompatActivity() ,ImageAdapter.OnItemClickListen
     }
 
     override fun onDeleteClick(position: Int){
+        progressBar.visibility=View.VISIBLE
+
         val selectedItem= mUploadLists.get(position)
         val selectedKey=selectedItem.getKey()
 
         val imgReference=mFirebaseStorage.getReferenceFromUrl(selectedItem?.uri.toString())
+
         imgReference.delete().addOnSuccessListener {
-            databaseReference.child(selectedKey.toString()).removeValue()
+
+            databaseReference.child(selectedKey).removeValue()
                 .addOnSuccessListener {
                     mUploadLists.clear()
                     loadRecyclerView()
+                    progressBar.visibility=View.GONE
                     Toast.makeText(this,"Deleted",Toast.LENGTH_LONG).show()
+
                 }
+
         }.addOnFailureListener {
             Toast.makeText(this,"Failed!",Toast.LENGTH_LONG).show()
+            progressBar.visibility=View.GONE
         }
 //        Toast.makeText(this,"Delete ${mUploadLists.get(position).getKey()}",Toast.LENGTH_LONG).show()
     }

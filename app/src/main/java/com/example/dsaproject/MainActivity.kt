@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val chooseFileBtn= findViewById<Button>(R.id.choose_file)
         val uploadBtn=findViewById<Button>(R.id.upload_image)
         fileNameText=findViewById(R.id.file_name_text)
@@ -71,16 +72,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getFileExtension(uri:Uri): String? {
-        val cr:ContentResolver=this.contentResolver
-        val mime:MimeTypeMap= MimeTypeMap.getSingleton()
-        return mime.getExtensionFromMimeType(cr.getType(uri).toString())
-    }
+//    private fun getFileExtension(uri:Uri): String? {
+//        val cr:ContentResolver=this.contentResolver
+//        val mime:MimeTypeMap= MimeTypeMap.getSingleton()
+//        return mime.getExtensionFromMimeType(cr.getType(uri).toString())
+//    }
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun uploadFile() {
         if(mImageUri!=null){
-            var fileReference: StorageReference=storageReference.child(
+            val fileReference: StorageReference=storageReference.child(
                 "image_"+System.currentTimeMillis().toString()
             )
 //            +"."+getFileExtension(mImageUri)
