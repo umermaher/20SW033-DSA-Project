@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 //        val mime:MimeTypeMap= MimeTypeMap.getSingleton()
 //        return mime.getExtensionFromMimeType(cr.getType(uri).toString())
 //    }
-
+//heyyyyy
     @RequiresApi(Build.VERSION_CODES.N)
     private fun uploadFile() {
         if(mImageUri!=null){
